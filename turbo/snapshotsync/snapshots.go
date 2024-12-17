@@ -56,6 +56,10 @@ type SortedRange interface {
 
 // NoOverlaps - keep largest ranges and avoid overlap
 func NoOverlaps[T SortedRange](in []T) (res []T) {
+	if len(in) == 1 {
+		return in
+	}
+
 	for i := 0; i < len(in); i++ {
 		r := in[i]
 		iFrom, iTo := r.GetRange()
@@ -83,6 +87,10 @@ func NoGaps[T SortedRange](in []T) (out []T, missingRanges []Range) {
 	if len(in) == 0 {
 		return nil, nil
 	}
+	if len(in) == 1 {
+		return in, nil
+	}
+
 	prevTo, _ := in[0].GetRange()
 	for _, f := range in {
 		from, to := f.GetRange()
@@ -1620,7 +1628,6 @@ func sendDiagnostics(startIndexingTime time.Time, indexPercent map[string]int, a
 }
 
 func typeOfSegmentsMustExist(dir string, in []snaptype.FileInfo, types []snaptype.Type) (res []snaptype.FileInfo) {
-MainLoop:
 	for _, f := range in {
 		if f.From == f.To {
 			continue
@@ -1630,10 +1637,10 @@ MainLoop:
 			exists, err := dir2.FileExist(p)
 			if err != nil {
 				log.Debug("[snapshots] FileExist error", "err", err, "path", p)
-				continue MainLoop
+				break
 			}
 			if !exists {
-				continue MainLoop
+				continue
 			}
 			res = append(res, f)
 		}

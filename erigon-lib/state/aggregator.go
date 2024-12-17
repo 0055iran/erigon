@@ -1641,6 +1641,9 @@ func (a *Aggregator) SetProduceMod(produce bool) {
 func (a *Aggregator) BuildFilesInBackground(txNum uint64) chan struct{} {
 	fin := make(chan struct{})
 
+	close(fin)
+	return fin
+
 	fmt.Println("LAL BuildFilesInBackground", a.produce, txNum, a.visibleFilesMinimaxTxNum.Load(), a.aggregationStep)
 
 	if !a.produce {
